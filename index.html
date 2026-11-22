@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101d32">
+  <meta name="description" content="MESA Fiber Tools: gestisci interventi FTTH, seriali, giunzioni e punti rete anche offline.">
+  <link rel="icon" type="image/png" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./app.css">
+  <title>MESA Fiber Tools</title>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#dashboard" aria-label="MESA Fiber Tools, home">
+        <span class="brand-logo"><svg viewBox="0 0 36 36" width="34" height="34" fill="none" aria-hidden="true"><path d="M7 25L15 9L20 20L27 9" stroke="#54F2CA" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="27" cy="9" r="3" fill="#54F2CA"/></svg></span>
+        <span><strong>MESA</strong><small>FIBER TOOLS</small></span>
+      </a>
+      <div class="sidebar-subtitle">WORKSPACE TECNICO</div>
+      <nav id="desktop-nav" class="side-nav" aria-label="Navigazione principale">
+        <button type="button" data-page="dashboard" class="nav-link active"><span class="nav-emoji">▦</span> Panoramica</button>
+        <button type="button" data-page="jobs" class="nav-link"><span class="nav-emoji">▤</span> Interventi</button>
+        <button type="button" data-page="stock" class="nav-link"><span class="nav-emoji">▣</span> Magazzino</button>
+        <button type="button" data-page="fibers" class="nav-link"><span class="nav-emoji">◈</span> Codici colore</button>
+        <button type="button" data-page="optics" class="nav-link"><span class="nav-emoji">▥</span> Ribattitura ottici</button>
+        <button type="button" data-page="splices" class="nav-link"><span class="nav-emoji">⋈</span> Giunzioni</button>
+        <button type="button" data-page="network" class="nav-link"><span class="nav-emoji">◎</span> Punti rete</button>
+        <button type="button" data-page="settings" class="nav-link"><span class="nav-emoji">⚙</span> Backup e sistema</button>
+      </nav>
+      <div class="side-bottom"><span class="live-dot"></span> Archivio locale <small id="side-version">v0.1.1</small></div>
+    </aside>
+    <div class="content-area">
+      <header class="topbar">
+        <div class="topbar-title"><span class="topbar-kicker">MESA FIBER SOLUTIONS</span><h1 id="page-title">Panoramica</h1></div>
+        <div class="topbar-actions"><span class="connection" id="connection"><span class="live-dot"></span> Online</span><button class="btn btn-quiet" id="install-btn" hidden>Installa app</button><button class="btn btn-primary" id="header-add" data-action="add-job">+ Intervento</button></div>
+      </header>
+      <main id="main" tabindex="-1"><noscript>Questa applicazione richiede JavaScript.</noscript></main>
+      <footer class="app-footer">MESA Fiber Tools · Versione <span id="footer-version">0.1.1</span> · I dati rimangono su questo dispositivo finché non esporti un backup.</footer>
+    </div>
+    <nav class="mobile-nav" aria-label="Navigazione mobile">
+      <button data-page="dashboard" class="active"><span>▦</span>Home</button>
+      <button data-page="jobs"><span>▤</span>Lavori</button>
+      <button data-page="stock"><span>▣</span>Stock</button>
+      <button data-page="fibers"><span>◈</span>Fibre</button>
+      <button data-page="network"><span>◎</span>Rete</button>
+      <button data-page="more"><span>☷</span>Altro</button>
+    </nav>
+  </div>
+  <div id="modal-root"></div>
+  <div id="toast-region" aria-live="polite" aria-atomic="true"></div>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>
