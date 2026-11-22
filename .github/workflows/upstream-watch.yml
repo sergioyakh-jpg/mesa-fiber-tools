@@ -1,0 +1,59 @@
+# Only monitors upstream; never copies source or modifies MESA code.
+name: Monitora nuove versioni Fiber Tools
+on:
+  schedule:
+    - cron: '34 5 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const upstream = {owner:'napoltano', repo:'fiber-tools'};
+            const {data:latest} = await github.rest.repos.getCommit({...upstream, ref:'main'});
+            const {data:tags} = await github.rest.repos.listTags({...upstream, per_page:1});
+            const {data:releases} = await github.rest.repos.listReleases({...upstream, per_page:10});
+            const current = {
+              commit: latest.sha,
+              tag: tags[0]?.name || '',
+              release: releases.find(r=>!r.draft)?.tag_name || ''
+            };
+            const trackingTitle = '[UPSTREAM] Stato automatico';
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              ...context.repo, state:'all', per_page:100
+            });
+            const tracking = issues.find(i=>!i.pull_request && i.title===trackingTitle);
+            const body = 'Stato di riferimento per il monitoraggio Fiber Tools. Non modificare manualmente.\n\n'+
+              '```json\n'+JSON.stringify(current,null,2)+'\n```';
+            if (!tracking) {
+              const {data:created} = await github.rest.issues.create({...context.repo,title:trackingTitle,body});
+              await github.rest.issues.update({...context.repo,issue_number:created.number,state:'closed'});
+              core.info('Creato riferimento iniziale. Nessun codice copiato.');
+              return;
+            }
+            let previous;
+            try {previous=JSON.parse(tracking.body.match(/```json\s*([\s\S]*?)\s*```/)?.[1] || '{}');}
+            catch {previous={};}
+            const notes=[];
+            if (previous.commit!==current.commit)
+              notes.push(`Nuovo commit sul ramo main: https://github.com/${upstream.owner}/${upstream.repo}/compare/${previous.commit || current.commit}...${current.commit}`);
+            if (previous.tag!==current.tag && current.tag)
+              notes.push(`Nuovo tag: https://github.com/${upstream.owner}/${upstream.repo}/releases/tag/${encodeURIComponent(current.tag)}`);
+            if (previous.release!==current.release && current.release)
+              notes.push(`Nuova release: https://github.com/${upstream.owner}/${upstream.repo}/releases/tag/${encodeURIComponent(current.release)}`);
+            if (notes.length) {
+              await github.rest.issues.create({
+                ...context.repo,
+                title:`[UPSTREAM] Novità ${current.commit.slice(0,8)} — ${new Date().toISOString().slice(0,10)}`,
+                body:notes.map(line=>`- ${line}`).join('\n')+
+                  '\n\nAnalizzare le funzioni per eventuale implementazione indipendente su MESA Fiber Tools.'+
+                  '\nNon copiare il codice senza autorizzazione/licenza. Non pubblicare aggiornamenti senza test.'
+              });
+              core.info(`Registrati ${notes.length} nuovi elementi.`);
+            } else core.info('Nessuna nuova versione o commit.');
+            await github.rest.issues.update({...context.repo,issue_number:tracking.number,body,state:'closed'});
